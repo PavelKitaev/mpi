@@ -64,8 +64,6 @@ int main(int argc, char** argv)
         MPI_Send(&sendcounts[i], 1, MPI_INT, i, 0, MPI_COMM_WORLD);
       }
     }
-
-    t_start = MPI_Wtime();
   }
 
   if (ProcRank != 0)
@@ -73,12 +71,16 @@ int main(int argc, char** argv)
     MPI_Recv(&recvcount, 1, MPI_INT, 0, 0, MPI_COMM_WORLD, &status);
   }
 
-  pers_vect1.reserve(recvcount);
-  pers_vect2.reserve(recvcount);
+  pers_vect1.resize(recvcount);
+  pers_vect2.resize(recvcount);
 
   MPI_Scatterv(&vect1[0], sendcounts, displs, MPI_DOUBLE, &pers_vect1[0], recvcount, MPI_DOUBLE, 0, MPI_COMM_WORLD);
   MPI_Scatterv(&vect2[0], sendcounts, displs, MPI_DOUBLE, &pers_vect2[0], recvcount, MPI_DOUBLE, 0, MPI_COMM_WORLD);
-
+  
+  if (ProcRank == 0)
+  {
+    t_start = MPI_Wtime();
+  }
   
   for (int i = 0; i < recvcount; i++)
   {
